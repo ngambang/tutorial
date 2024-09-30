@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Recording Example</title>
+</head>
+<body>
+    <h1>Screen Recording Example</h1>
+    <video id="screenVideo" autoplay playsinline></video>
+    <video id="recordedVideo" controls></video>
+    <button id="shareScreenButton">Share Screen</button>
+    <button id="stopShareButton">Stop Sharing</button>
+    <button id="startRecordButton">Start Recording</button>
+    <button id="stopRecordButton">Stop Recording</button>
+
+    <script>
+        // Dapatkan referensi ke elemen video dan tombol
+        const screenVideo = document.getElementById('screenVideo');
+        const recordedVideo = document.getElementById('recordedVideo');
+        const shareScreenButton = document.getElementById('shareScreenButton');
+        const stopShareButton = document.getElementById('stopShareButton');
+        const startRecordButton = document.getElementById('startRecordButton');
+        const stopRecordButton = document.getElementById('stopRecordButton');
+
+        let screenStream;
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        // Fungsi untuk memulai screen sharing
+        async function startScreenSharing() {
+            try {
+                // Minta izin untuk membagikan layar
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                // Tampilkan stream layar pada elemen video
+                screenVideo.srcObject = screenStream;
+
+                // Opsional: Menangani berhentinya screen sharing
+                screenStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    stopScreenSharing();
+                });
+            } catch (error) {
+                console.error('Gagal memulai screen sharing:', error);
+            }
+        }
+
+        // Fungsi untuk menghentikan screen sharing
+        function stopScreenSharing() {
+            if (screenStream) {
+                // Hentikan semua track dalam screen stream
+                screenStream.getTracks().forEach(track => track.stop());
+                screenVideo.srcObject = null;
+            }
+        }
+
+        // Fungsi untuk memulai perekaman
+        function startRecording() {
+            if (screenStream) {
+                recordedChunks = [];
+                // Buat MediaRecorder untuk merekam screen stream
+                mediaRecorder = new MediaRecorder(screenStream);
+
+                // Tangani data yang direkam
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                // Mulai perekaman
+                mediaRecorder.start();
+                console.log('Recording started');
+            }
+        }
+
+        // Fungsi untuk menghentikan perekaman dan menampilkan hasilnya
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                // Hentikan perekaman
+                mediaRecorder.stop();
+
+                // Setelah perekaman selesai, buat Blob dari data yang direkam
+                mediaRecorder.onstop = () => {
+                    const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                    // Set hasil rekaman sebagai sumber untuk elemen video
+                    recordedVideo.src = URL.createObjectURL(recordedBlob);
+                    recordedVideo.controls = true;
+                    console.log('Recording stopped');
+                };
+            }
+        }
+
+        // Tambahkan event listener ke tombol-tombol
+        shareScreenButton.addEventListener('click', startScreenSharing);
+        stopShareButton.addEventListener('click', stopScreenSharing);
+        startRecordButton.addEventListener('click', startRecording);
+        stopRecordButton.addEventListener('click', stopRecording);
+    </script>
+</body>
+</html>

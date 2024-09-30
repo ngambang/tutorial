@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Sharing Example</title>
+</head>
+<body>
+    <h1>Screen Sharing Example</h1>
+    <video id="screenVideo" autoplay playsinline style="width: 100%"></video>
+    <button id="shareScreenButton">Share Screen</button>
+    <button id="stopShareButton">Stop Sharing</button>
+
+    <script>
+        // Dapatkan referensi ke elemen video dan tombol
+        const screenVideo = document.getElementById('screenVideo');
+        const shareScreenButton = document.getElementById('shareScreenButton');
+        const stopShareButton = document.getElementById('stopShareButton');
+
+        let screenStream;
+
+        // Fungsi untuk memulai screen sharing
+        async function startScreenSharing() {
+            try {
+                // Minta izin untuk membagikan layar
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                // Tampilkan stream layar pada elemen video
+                screenVideo.srcObject = screenStream;
+
+                // Opsional: Menangani berhentinya screen sharing
+                screenStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    stopScreenSharing();
+                });
+            } catch (error) {
+                console.error('Gagal memulai screen sharing:', error);
+            }
+        }
+
+        // Fungsi untuk menghentikan screen sharing
+        function stopScreenSharing() {
+            if (screenStream) {
+                // Hentikan semua track dalam screen stream
+                screenStream.getTracks().forEach(track => track.stop());
+                screenVideo.srcObject = null;
+            }
+        }
+
+        // Tambahkan event listener ke tombol start dan stop
+        shareScreenButton.addEventListener('click', startScreenSharing);
+        stopShareButton.addEventListener('click', stopScreenSharing);
+    </script>
+</body>
+</html>

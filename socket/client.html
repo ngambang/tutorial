@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Client</title>
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button id="sendButton">Send</button>
+    <div id="chatLog"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+        const chatLog = document.getElementById('chatLog');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        socket.addEventListener('open', () => {
+            chatLog.innerHTML += '<p><em>Connected to server.</em></p>';
+        });
+
+        socket.addEventListener('message', (event) => {
+            // Menerima data sebagai string
+            const message = event.data;
+            chatLog.innerHTML += `<p><strong>Server:</strong> ${message}</p>`;
+        });
+
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            // Mengirim pesan sebagai string
+            socket.send(message);
+            chatLog.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+            messageInput.value = '';
+        });
+
+        socket.addEventListener('close', () => {
+            chatLog.innerHTML += '<p><em>Disconnected from server.</em></p>';
+        });
+
+        socket.addEventListener('error', () => {
+            chatLog.innerHTML += '<p><em>Error occurred.</em></p>';
+        });
+    </script>
+</body>
+</html>

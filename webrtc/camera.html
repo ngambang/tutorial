@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaStream Example</title>
+</head>
+<body>
+    <h1>MediaStream Example</h1>
+    <video id="videoElement" autoplay playsinline></video>
+    <button id="startButton">Start Camera</button>
+    <button id="stopButton">Stop Camera</button>
+
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+
+        let mediaStream;
+
+        // Fungsi untuk memulai kamera dan mikrofon
+        async function startMediaStream() {
+            try {
+                // Minta izin dan dapatkan stream media dari kamera dan mikrofon
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                // Tampilkan stream pada elemen video
+                videoElement.srcObject = mediaStream;
+            } catch (error) {
+                console.error('Gagal mendapatkan media stream:', error);
+            }
+        }
+
+        // Fungsi untuk menghentikan aliran media
+        function stopMediaStream() {
+            if (mediaStream) {
+                // Hentikan semua track dalam media stream
+                mediaStream.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+        }
+
+        // Tambahkan event listener ke tombol start dan stop
+        startButton.addEventListener('click', startMediaStream);
+        stopButton.addEventListener('click', stopMediaStream);
+    </script>
+</body>
+</html>
