@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Web APIs yang Jarang Diketahui</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .api-section {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .api-description, .api-code {
+            flex: 1;
+        }
+        .api-description h2, .api-code h2 {
+            color: #555;
+        }
+        .api-description p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #target {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: lightcoral;
+            text-align: center;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Demo Web APIs yang Jarang Diketahui</h1>
+
+    <!-- Clipboard API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Clipboard API</h2>
+            <p><strong>Kegunaan:</strong> Mengelola salinan teks di clipboard pengguna, memungkinkan aplikasi web untuk menyalin dan menempelkan teks secara programatik.</p>
+            <button onclick="copyText()">Salin Teks ke Clipboard</button>
+            <p id="clipboardStatus" class="status"></p>
+            <script>
+                function copyText() {
+                    navigator.clipboard.writeText('Halo, ini teks yang disalin!').then(() => {
+                        document.getElementById('clipboardStatus').textContent = 'Teks berhasil disalin!';
+                    }).catch(err => {
+                        document.getElementById('clipboardStatus').textContent = 'Gagal menyalin teks.';
+                    });
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Clipboard API</h2>
+            <pre><code>
+navigator.clipboard.writeText('Teks yang disalin')
+    .then(() => {
+        // Berhasil
+    })
+    .catch(err => {
+        // Gagal
+    });
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Fungsi <code>navigator.clipboard.writeText</code> menulis teks ke clipboard. <code>.then()</code> menangani hasil sukses atau error.</p>
+        </div>
+    </div>
+
+    <!-- Battery Status API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Battery Status API</h2>
+            <p><strong>Kegunaan:</strong> Menampilkan status baterai perangkat pengguna, termasuk level baterai dan apakah perangkat sedang mengisi daya. Berguna untuk aplikasi yang ingin menghemat daya baterai atau memberikan peringatan kepada pengguna.</p>
+            <button onclick="checkBattery()">Cek Status Baterai</button>
+            <p id="batteryStatus" class="status"></p>
+            <script>
+                function checkBattery() {
+                    navigator.getBattery().then(battery => {
+                        updateBatteryStatus(battery);
+                        battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
+                        battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
+                    });
+                }
+
+                function updateBatteryStatus(battery) {
+                    document.getElementById('batteryStatus').textContent = `Level baterai: ${battery.level * 100}%, Sedang mengisi: ${battery.charging}`;
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Battery Status API</h2>
+            <pre><code>
+navigator.getBattery().then(battery => {
+    updateBatteryStatus(battery);
+    battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
+    battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
+});
+
+function updateBatteryStatus(battery) {
+    console.log(`Level baterai: ${battery.level * 100}%`);
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> <code>navigator.getBattery()</code> digunakan untuk mengambil informasi baterai. Event listener <code>levelchange</code> dan <code>chargingchange</code> memastikan status baterai selalu diperbarui.</p>
+        </div>
+    </div>
+
+    <!-- Network Information API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Network Information API</h2>
+            <p><strong>Kegunaan:</strong> Menampilkan informasi jaringan pengguna, seperti tipe koneksi (4G, WiFi, dll.) dan kecepatan unduh. Aplikasi dapat menyesuaikan kualitas konten atau pengalaman berdasarkan kondisi jaringan.</p>
+            <button onclick="checkNetwork()">Cek Status Jaringan</button>
+            <p id="networkStatus" class="status"></p>
+            <script>
+                function checkNetwork() {
+                    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                    if (connection) {
+                        updateNetworkStatus(connection);
+                        connection.addEventListener('change', () => updateNetworkStatus(connection));
+                    } else {
+                        document.getElementById('networkStatus').textContent = 'Informasi jaringan tidak tersedia.';
+                    }
+                }
+
+                function updateNetworkStatus(connection) {
+                    document.getElementById('networkStatus').textContent = `Tipe jaringan: ${connection.effectiveType}, Kecepatan: ${connection.downlink} Mbps`;
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Network Information API</h2>
+            <pre><code>
+const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+if (connection) {
+    console.log(`Tipe jaringan: ${connection.effectiveType}`);
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> <code>navigator.connection</code> memberikan informasi tentang status jaringan pengguna. Dengan event listener <code>change</code>, aplikasi dapat merespons perubahan jaringan secara dinamis.</p>
+        </div>
+    </div>
+
+    <!-- Speech Synthesis API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Speech Synthesis API</h2>
+            <p><strong>Kegunaan:</strong> Mengonversi teks menjadi suara (text-to-speech). Berguna untuk aplikasi yang mendukung aksesibilitas atau membutuhkan pembacaan teks secara otomatis.</p>
+            <button onclick="speakText()">Ucapkan Teks</button>
+            <p id="speechStatus" class="status"></p>
+            <script>
+                function speakText() {
+                    const utterance = new SpeechSynthesisUtterance('Halo, selamat datang di demo Web API!');
+                    speechSynthesis.speak(utterance);
+                    utterance.onstart = () => {
+                        document.getElementById('speechStatus').textContent = 'Speech synthesis dimulai.';
+                    };
+                    utterance.onend = () => {
+                        document.getElementById('speechStatus').textContent = 'Speech synthesis selesai.';
+                    };
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Speech Synthesis API</h2>
+            <pre><code>
+function speakText() {
+    const utterance = new SpeechSynthesisUtterance('Halo, selamat datang di demo Web API!');
+    speechSynthesis.speak(utterance);
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Membuat objek <code>SpeechSynthesisUtterance</code> dengan teks yang akan diucapkan dan memanggil <code>speechSynthesis.speak()</code> untuk memulai pembacaan.</p>
+        </div>
+    </div>
+
+    <!-- Vibration API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Vibration API</h2>
+            <p><strong>Kegunaan:</strong> Mengontrol getaran perangkat, khususnya pada perangkat mobile. Bisa digunakan untuk memberikan feedback haptic kepada pengguna saat terjadi event tertentu.</p>
+            <button onclick="vibrateDevice()">Getarkan Perangkat</button>
+            <p id="vibrationStatus" class="status"></p>
+            <script>
+                function vibrateDevice() {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(200); // Getar selama 200ms
+                        document.getElementById('vibrationStatus').textContent = 'Perangkat digetarkan!';
+                    } else {
+                        document.getElementById('vibrationStatus').textContent = 'Vibration API tidak didukung di browser ini.';
+                    }
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Vibration API</h2>
+            <pre><code>
+function vibrateDevice() {
+    if (navigator.vibrate) {
+        navigator.vibrate(200);
+    }
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Fungsi <code>navigator.vibrate</code> menerima durasi getaran dalam milidetik atau pola getaran. Pada contoh ini, perangkat akan digetarkan selama 200ms.</p>
+        </div>
+    </div>
+
+    <!-- Intersection Observer API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Intersection Observer API</h2>
+            <p><strong>Kegunaan:</strong> Melacak apakah elemen terlihat di viewport atau tidak. Sangat berguna untuk implementasi lazy loading gambar, animasi saat elemen muncul, atau trigger event ketika elemen masuk atau keluar dari layar.</p>
+            <p id="observeStatus" class="status">Scroll untuk melihat apakah elemen ini masuk viewport.</p>
+            <div style="height: 100vh;"></div>
+            <div id="target" style="height: 100px; background-color: lightcoral; border-radius: 5px;">
+                Target Element
+            </div>
+            <script>
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        console.log(entry.isIntersecting ? 'Elemen terlihat!' : 'Elemen tidak terlihat.');
+                        document.getElementById('observeStatus').textContent = entry.isIntersecting ? 'Elemen terlihat!' : 'Elemen tidak terlihat.';
+                    });
+                });
+                observer.observe(document.querySelector('#target'));
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Intersection Observer API</h2>
+            <pre><code>
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            console.log('Elemen terlihat!');
+        } else {
+            console.log('Elemen tidak terlihat.');
+        }
+    });
+});
+observer.observe(document.querySelector('#target'));
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Membuat objek <code>IntersectionObserver</code> yang memonitor elemen dengan ID <code>target</code>. Callback akan dipanggil setiap kali status intersecting berubah.</p>
+        </div>
+    </div>
+
+    <!-- Device Orientation API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Device Orientation API</h2>
+            <p><strong>Kegunaan:</strong> Menampilkan data orientasi perangkat seperti arah (alpha), kemiringan depan-belakang (beta), dan kemiringan kiri-kanan (gamma). Berguna untuk aplikasi game, augmented reality (AR), atau aplikasi yang memerlukan interaksi berdasarkan gerakan perangkat.</p>
+            <p id="orientationStatus" class="status">Gerakkan perangkat untuk melihat data orientasi.</p>
+            <script>
+                window.addEventListener('deviceorientation', (event) => {
+                    document.getElementById('orientationStatus').textContent = `Alpha: ${event.alpha.toFixed(2)}, Beta: ${event.beta.toFixed(2)}, Gamma: ${event.gamma.toFixed(2)}`;
+                });
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Device Orientation API</h2>
+            <pre><code>
+window.addEventListener('deviceorientation', (event) => {
+    console.log(`Alpha: ${event.alpha}, Beta: ${event.beta}, Gamma: ${event.gamma}`);
+});
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Event listener <code>deviceorientation</code> menerima objek event yang berisi informasi tentang orientasi perangkat dalam derajat.</p>
+        </div>
+    </div>
+
+    <!-- Page Visibility API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Page Visibility API</h2>
+            <p><strong>Kegunaan:</strong> Melacak apakah halaman web sedang aktif atau disembunyikan (misalnya, saat pengguna beralih ke tab lain). Berguna untuk mengoptimalkan performa aplikasi dengan menghentikan tugas-tugas berat saat halaman tidak aktif.</p>
+            <p id="visibilityStatus" class="status">Tab saat ini: Aktif</p>
+            <script>
+                document.addEventListener('visibilitychange', () => {
+                    document.getElementById('visibilityStatus').textContent = document.visibilityState === 'hidden' ? 'Tab saat ini: Tidak Aktif' : 'Tab saat ini: Aktif';
+                });
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Page Visibility API</h2>
+            <pre><code>
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        console.log('Halaman disembunyikan');
+    } else {
+        console.log('Halaman aktif');
+    }
+});
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Event <code>visibilitychange</code> digunakan untuk mendeteksi perubahan status visibilitas halaman. <code>document.visibilityState</code> bisa bernilai 'hidden' atau 'visible'.</p>
+        </div>
+    </div>
+
+    <!-- Web Share API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Web Share API</h2>
+            <p><strong>Kegunaan:</strong> Memungkinkan aplikasi web untuk menggunakan dialog berbagi native dari perangkat, seperti mengirim teks, gambar, atau link melalui aplikasi yang diinstal (misalnya WhatsApp, Email, dll.). Meningkatkan interaksi sosial dalam aplikasi web.</p>
+            <button onclick="shareContent()">Bagikan Halaman Ini</button>
+            <p id="shareStatus" class="status"></p>
+            <script>
+                function shareContent() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Demo Web APIs',
+                            text: 'Lihat contoh implementasi Web APIs yang jarang diketahui!',
+                            url: window.location.href
+                        }).then(() => {
+                            document.getElementById('shareStatus').textContent = 'Berhasil berbagi!';
+                        })
+                        .catch((error) => {
+                            document.getElementById('shareStatus').textContent = 'Gagal berbagi.';
+                            console.error('Error berbagi:', error);
+                        });
+                    } else {
+                        document.getElementById('shareStatus').textContent = 'Fitur berbagi tidak didukung di browser ini.';
+                    }
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Web Share API</h2>
+            <pre><code>
+function shareContent() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Demo Web APIs',
+            text: 'Lihat contoh implementasi Web APIs yang jarang diketahui!',
+            url: window.location.href
+        })
+        .then(() => console.log('Berhasil berbagi!'))
+        .catch((error) => console.log('Gagal berbagi:', error));
+    }
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Fungsi <code>navigator.share</code> membuka dialog berbagi native dengan konten yang ditentukan. Fitur ini memerlukan HTTPS dan hanya didukung di beberapa browser modern.</p>
+        </div>
+    </div>
+
+    <!-- Screen Wake Lock API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Screen Wake Lock API</h2>
+            <p><strong>Kegunaan:</strong> Mencegah layar perangkat tidur saat aplikasi web penting sedang dijalankan, seperti video call atau presentasi. Membantu menjaga interaksi pengguna tanpa gangguan dari sistem operasi.</p>
+            <button onclick="activateWakeLock()">Aktifkan Wake Lock</button>
+            <p id="wakeLockStatus" class="status"></p>
+            <script>
+                let wakeLock = null;
+
+                async function activateWakeLock() {
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        document.getElementById('wakeLockStatus').textContent = 'Wake lock aktif!';
+                        wakeLock.addEventListener('release', () => {
+                            document.getElementById('wakeLockStatus').textContent = 'Wake lock dilepaskan.';
+                        });
+                    } catch (err) {
+                        document.getElementById('wakeLockStatus').textContent = 'Gagal mengaktifkan wake lock.';
+                        console.error(err);
+                    }
+                }
+
+                // Mengatasi wake lock dilepaskan secara otomatis
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible' && wakeLock === null) {
+                        activateWakeLock();
+                    }
+                });
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Screen Wake Lock API</h2>
+            <pre><code>
+let wakeLock = null;
+
+async function activateWakeLock() {
+    try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Wake lock aktif!');
+        wakeLock.addEventListener('release', () => {
+            console.log('Wake lock dilepaskan.');
+        });
+    } catch (err) {
+        console.error('Gagal mengaktifkan wake lock', err);
+    }
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> Menggunakan <code>navigator.wakeLock.request('screen')</code> untuk mencegah layar tidur. Event listener <code>release</code> mendeteksi kapan wake lock dilepaskan.</p>
+        </div>
+    </div>
+
+    <!-- Geolocation API -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Geolocation API</h2>
+            <p><strong>Kegunaan:</strong> Mendapatkan lokasi geografis pengguna. Berguna untuk aplikasi peta, layanan lokal, atau fitur berbasis lokasi lainnya.</p>
+            <button onclick="getLocation()">Dapatkan Lokasi</button>
+            <p id="locationStatus" class="status"></p>
+            <script>
+                function getLocation() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(showPosition, showError);
+                    } else {
+                        document.getElementById('locationStatus').textContent = 'Geolocation tidak didukung oleh browser ini.';
+                    }
+                }
+
+                function showPosition(position) {
+                    document.getElementById('locationStatus').textContent = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                }
+
+                function showError(error) {
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            document.getElementById('locationStatus').textContent = 'Pengguna menolak permintaan Geolocation.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            document.getElementById('locationStatus').textContent = 'Informasi lokasi tidak tersedia.';
+                            break;
+                        case error.TIMEOUT:
+                            document.getElementById('locationStatus').textContent = 'Permintaan Geolocation telah waktu.';
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            document.getElementById('locationStatus').textContent = 'Terjadi kesalahan tidak diketahui.';
+                            break;
+                    }
+                }
+            </script>
+        </div>
+        <div class="api-code">
+            <h2>Kode Geolocation API</h2>
+            <pre><code>
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition, showError);
+} else {
+    console.log('Geolocation tidak didukung oleh browser ini.');
+}
+
+function showPosition(position) {
+    console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+}
+
+function showError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            console.log('Pengguna menolak permintaan Geolocation.');
+            break;
+        case error.POSITION_UNAVAILABLE:
+            console.log('Informasi lokasi tidak tersedia.');
+            break;
+        case error.TIMEOUT:
+            console.log('Permintaan Geolocation telah waktu.');
+            break;
+        case error.UNKNOWN_ERROR:
+            console.log('Terjadi kesalahan tidak diketahui.');
+            break;
+    }
+}
+            </code></pre>
+            <p><strong>Penjelasan:</strong> <code>navigator.geolocation.getCurrentPosition</code> mengambil posisi saat ini pengguna. Fungsi callback <code>showPosition</code> menangani posisi yang berhasil diambil, sementara <code>showError</code> menangani error yang mungkin terjadi.</p>
+        </div>
+    </div>
+
+    <!-- Additional APIs -->
+    <div class="api-section">
+        <div class="api-description">
+            <h2>Additional APIs</h2>
+            <p>Berikut adalah beberapa Web APIs tambahan yang juga jarang diketahui namun sangat berguna:</p>
+            <ul>
+                <li><strong>Service Workers API:</strong> Untuk membuat aplikasi web yang dapat bekerja offline atau melakukan caching request di background.</li>
+                <li><strong>Notifications API:</strong> Memberikan kemampuan untuk menampilkan notifikasi di desktop atau mobile dari aplikasi web.</li>
+                <li><strong>Canvas API:</strong> Digunakan untuk menggambar grafis seperti grafik, permainan, atau visualisasi data.</li>
+            </ul>
+            <p>Pembahasan lebih mendetail tentang API-API ini bisa dilanjutkan sesuai kebutuhan presentasi Anda.</p>
+        </div>
+        <div class="api-code">
+            <h2>Kode Contoh</h2>
+            <pre><code>
+// Contoh Service Workers API
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+            console.log('Service Worker terdaftar:', registration);
+        })
+        .catch(error => {
+            console.log('Gagal mendaftarkan Service Worker:', error);
+        });
+}
+
+// Contoh Notifications API
+function showNotification() {
+    if (Notification.permission === 'granted') {
+        new Notification('Hello! Ini adalah notifikasi.');
+    } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                new Notification('Hello! Ini adalah notifikasi.');
+            }
+        });
+    }
+}
+
+// Contoh Canvas API
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = 'blue';
+ctx.fillRect(10, 10, 100, 100);
+            </code></pre>
+            <p><strong>Penjelasan:</strong> API-API tambahan seperti Service Workers, Notifications, dan Canvas menyediakan fungsionalitas canggih untuk aplikasi web, mulai dari kemampuan offline, notifikasi interaktif, hingga grafis dinamis.</p>
+        </div>
+    </div>
+
+</body>
+</html>

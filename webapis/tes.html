@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intersection Observer Example</title>
+    <style>
+        .image {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="image" data-src="https://via.placeholder.com/600x300?text=Image+1"></div>
+    <div class="image" data-src="https://via.placeholder.com/600x300?text=Image+2"></div>
+    <div class="image" data-src="https://via.placeholder.com/600x300?text=Image+3"></div>
+
+    <script>
+        // Membuat instance Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Mengambil elemen yang diamati
+                    const img = entry.target;
+                    // Memuat gambar
+                    img.style.backgroundImage = `url(${img.dataset.src})`;
+                    // Menghentikan pengamatan
+                    observer.unobserve(img);
+                }
+            });
+        });
+
+        // Mengamati setiap elemen dengan class 'image'
+        document.querySelectorAll('.image').forEach(image => {
+            observer.observe(image);
+        });
+    </script>
+</body>
+</html>
