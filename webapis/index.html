@@ -108,7 +108,7 @@
         </p>
     </div>
 
-    <h3 style="width: 100%; text-align: center;">Contoh Web API </h3>
+    <h3 style="width: 100%; text-align: center;">Contoh </h3>
 
     <!-- Clipboard API -->
     <div class="api-section">
@@ -224,7 +224,7 @@ if (connection) {
             <p id="speechStatus" class="status"></p>
             <script>
                 function speakText() {
-                    const utterance = new SpeechSynthesisUtterance('Halo, selamat datang di demo Web API!');
+                    const utterance = new SpeechSynthesisUtterance('Halo, selamat datang');
                     speechSynthesis.speak(utterance);
                     utterance.onstart = () => {
                         document.getElementById('speechStatus').textContent = 'Speech synthesis dimulai.';
@@ -239,7 +239,7 @@ if (connection) {
             <h2>Kode Speech Synthesis API</h2>
             <pre><code>
 function speakText() {
-    const utterance = new SpeechSynthesisUtterance('Halo, selamat datang di demo Web API!');
+    const utterance = new SpeechSynthesisUtterance('Halo, selamat datang');
     speechSynthesis.speak(utterance);
 }
             </code></pre>
@@ -347,6 +347,7 @@ window.addEventListener('deviceorientation', (event) => {
             <p id="visibilityStatus" class="status">Tab saat ini: Aktif</p>
             <script>
                 document.addEventListener('visibilitychange', () => {
+                    console.log("Tab saat ini: " + document.visibilityState);
                     document.getElementById('visibilityStatus').textContent = document.visibilityState === 'hidden' ? 'Tab saat ini: Tidak Aktif' : 'Tab saat ini: Aktif';
                 });
             </script>
@@ -536,54 +537,6 @@ function showError(error) {
         </div>
     </div>
 
-    <!-- Additional APIs -->
-    <div class="api-section">
-        <div class="api-description">
-            <h2>Additional APIs</h2>
-            <p>Berikut adalah beberapa Web APIs tambahan yang juga jarang diketahui namun sangat berguna:</p>
-            <ul>
-                <li><strong>Service Workers API:</strong> Untuk membuat aplikasi web yang dapat bekerja offline atau melakukan caching request di background.</li>
-                <li><strong>Notifications API:</strong> Memberikan kemampuan untuk menampilkan notifikasi di desktop atau mobile dari aplikasi web.</li>
-                <li><strong>Canvas API:</strong> Digunakan untuk menggambar grafis seperti grafik, permainan, atau visualisasi data.</li>
-            </ul>
-            <p>Pembahasan lebih mendetail tentang API-API ini bisa dilanjutkan sesuai kebutuhan presentasi Anda.</p>
-        </div>
-        <div class="api-code">
-            <h2>Kode Contoh</h2>
-            <pre><code>
-// Contoh Service Workers API
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-        .then(registration => {
-            console.log('Service Worker terdaftar:', registration);
-        })
-        .catch(error => {
-            console.log('Gagal mendaftarkan Service Worker:', error);
-        });
-}
-
-// Contoh Notifications API
-function showNotification() {
-    if (Notification.permission === 'granted') {
-        new Notification('Hello! Ini adalah notifikasi.');
-    } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                new Notification('Hello! Ini adalah notifikasi.');
-            }
-        });
-    }
-}
-
-// Contoh Canvas API
-const canvas = document.getElementById('myCanvas');
-const ctx = canvas.getContext('2d');
-ctx.fillStyle = 'blue';
-ctx.fillRect(10, 10, 100, 100);
-            </code></pre>
-            <p><strong>Penjelasan:</strong> API-API tambahan seperti Service Workers, Notifications, dan Canvas menyediakan fungsionalitas canggih untuk aplikasi web, mulai dari kemampuan offline, notifikasi interaktif, hingga grafis dinamis.</p>
-        </div>
-    </div>
 
 </body>
 </html>

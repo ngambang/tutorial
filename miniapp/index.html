@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Mini Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #f4f4f4);
+            color: var(--tg-theme-text-color, #333);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        #status {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            background-color: var(--tg-theme-button-color, #2cab37);
+            color: var(--tg-theme-button-text-color, white);
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="file"], select {
+            padding: 10px;
+            margin: 10px 0;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #debug {
+            margin-top: 20px;
+            text-align: left;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Aplikasi Mini Telegram</h1>
+        <h3 id="username"></h3>
+        <input type="text" id="customMessage" placeholder="Masukkan pesan kustom" />        
+        <button id="sendData">Kirim Data ke Bot</button>
+        <button id="reset">Reset</button>
+        
+        <div id="status" style="color: black;"></div>
+        <textarea id="debug" style="width: 100%; height: 500px;"></textarea>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+
+        function updateDebugInfo() {
+            const debugDiv = document.getElementById('debug');
+            debugDiv.value = `
+InitData: ${tg.initData}
+InitDataUnsafe: ${JSON.stringify(tg.initDataUnsafe, null, 2)}
+Version: ${tg.version}
+Platform: ${tg.platform}
+Is Expanded: ${tg.isExpanded}
+WebAppInfo: ${JSON.stringify(tg, null, 2)}
+            `;
+        }
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'error' : 'success';
+        }
+
+        try {
+            tg.ready();
+            tg.expand();
+            updateDebugInfo();
+            showStatus('WebApp siap digunakan');
+        } catch (e) {
+            showStatus('Error saat inisialisasi: ' + e.message, true);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const username = document.getElementById('username');
+            const sendDataButton = document.getElementById('sendData');
+            const resetButton = document.getElementById('reset');
+            const colorPicker = document.getElementById('colorPicker');
+            const customMessageInput = document.getElementById('customMessage');
+
+            username.textContent = tg.initDataUnsafe?.user?.username || 'Anonymous';
+
+            sendDataButton.addEventListener('click', function() {
+                try {
+                    const dataToSend = {
+                        message: customMessageInput.value || "Halo dari Aplikasi Mini!",
+                        timestamp: new Date().toISOString(),
+                        platform: tg.platform,
+                        version: tg.version,
+                        user: {
+                            id: tg.initDataUnsafe?.user?.id,
+                            first_name: tg.initDataUnsafe?.user?.first_name,
+                            last_name: tg.initDataUnsafe?.user?.last_name,
+                            username: tg.initDataUnsafe?.user?.username,
+                            language_code: tg.initDataUnsafe?.user?.language_code
+                        },
+                        webAppInfo: {
+                            initData: tg.initData,
+                            initDataUnsafe: tg.initDataUnsafe,
+                            isExpanded: tg.isExpanded
+                        }
+                    };
+                    
+                    const jsonData = JSON.stringify(dataToSend, null, 2); 
+                    showStatus('Mencoba mengirim data: ' + jsonData);
+                    
+                    tg.sendData(jsonData);
+                    showStatus('Data berhasil dikirim!');
+                    
+                    setTimeout(() => {
+                        tg.close();
+                    }, 1500);
+                } catch (error) {
+                    showStatus('Error saat mengirim data: ' + error.message, true);
+                }
+            });
+
+            resetButton.addEventListener('click', function() {
+                customMessageInput.value = '';
+                showStatus('Aplikasi telah direset.');
+            });
+        });
+    </script>
+</body>
+</html>
